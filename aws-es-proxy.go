@@ -43,6 +43,7 @@ type responseStruct struct {
 type proxy struct {
 	scheme       string
 	host         string
+	path         string
 	region       string
 	service      string
 	endpoint     string
@@ -92,7 +93,7 @@ func (p *proxy) parseEndpoint() error {
 		// Extract region and service from link
 		parts := strings.Split(link.Host, ".")
 
-		if len(parts) == 5 {
+		if len(parts) <= 6 {
 			p.region, p.service = parts[1], parts[2]
 		} else {
 			return fmt.Errorf("error: submitted endpoint is not a valid Amazon ElasticSearch Endpoint")
@@ -102,6 +103,7 @@ func (p *proxy) parseEndpoint() error {
 	// Update proxy struct
 	p.scheme = link.Scheme
 	p.host = link.Host
+	p.path = path.Clean(link.Path)
 
 	return nil
 }
@@ -129,8 +131,11 @@ func (p *proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	ep := *r.URL
 	ep.Host = p.host
-	ep.Scheme = p.scheme
+	ep.Scheme = p.scheme 
 	ep.Path = path.Clean(ep.Path)
+	if (ep.Path == "." || ep.Path == "/") {
+		ep.Path = p.path
+	}
 
 	req, err := http.NewRequest(r.Method, ep.String(), r.Body)
 	if err != nil {
