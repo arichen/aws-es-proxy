@@ -1,6 +1,8 @@
+# aws-auth-proxy
+
 Based on repository [abutaha/aws-es-proxy](https://github.com/abutaha/aws-es-proxy)
 
-Changes:
+## Differences:
 1. Added support aws cn endpoint: 
 
   e.g. https://yourname.region.es.amazonaws.com.cn
